@@ -1,0 +1,47 @@
+apiVersion: tekton.dev/v1
+kind: PipelineRun
+metadata:
+  name: mar15-3-on-pull-request
+  namespace: pvt-1
+  labels:
+    argocd/app-name: mar15-3
+    janus-idp.io/tekton: mar15-3
+    backstage.io/kubernetes-id: mar15-3
+    backstage.io/kubernetes-namespace: pvt-1 
+    app.kubernetes.io/part-of: mar15-3
+  annotations:
+    pipelinesascode.tekton.dev/on-event: "[pull_request]"
+    pipelinesascode.tekton.dev/on-target-branch: "[main]"
+    pipelinesascode.tekton.dev/max-keep-runs: "2"
+    pipelinesascode.tekton.dev/pipeline: "https://raw.githubusercontent.com/redhat-appstudio/tssc-sample-pipelines/main/new-for-dance/pipelines-helm/pipeline-promote.yaml"
+    # Todo: pac tasks need to be added after the pipleline has been finalized
+    # pipelinesascode.tekton.dev/task-0: "https://raw.githubusercontent.com/redhat-appstudio/tssc-sample-pipelines/main/pac/tasks/init.yaml"
+    # pipelinesascode.tekton.dev/task-1: "https://raw.githubusercontent.com/redhat-appstudio/tssc-sample-pipelines/main/pac/tasks/git-clone.yaml"
+    # pipelinesascode.tekton.dev/task-2: "https://raw.githubusercontent.com/redhat-appstudio/tssc-sample-pipelines/main/new-for-dance/tasks/task-verify-enterprise-contract.yaml"
+spec: 
+  params:
+  # Todo: params need to be updated after the pipeline has been finalized
+  - name: namespace
+    value: pvt-1
+  - name: gitops-repo-url
+    value: https://github.com/redhat-appstudio-mjf/mar15-3-gitops
+  - name: source-repo-url
+    value: https://github.com/redhat-appstudio-mjf/mar15-3
+  - name: component-id
+    value: mar15-3
+  - name: revision
+    value: '{{revision}}'
+  - name: argocd-host
+    value: argocd.example.com # hardcoded for now
+  pipelineRef:
+    name: mar15-3-gitops-promote
+  workspaces:
+    - name: workspace
+      volumeClaimTemplate: 
+        spec:
+          accessModes:
+          - ReadWriteOnce
+          resources:
+            requests:
+              storage: 1Gi
+ 
